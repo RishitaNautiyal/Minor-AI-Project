@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'; frame-src https://offgrid-3b579.firebaseapp.com https://accounts.google.com https://www.google.com https://www.gstatic.com; img-src 'self' blob: data: https://*.googleusercontent.com; font-src https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google.com https://apis.google.com; connect-src 'self' http://127.0.0.1:5000 http://127.0.0.1:5001 https://www.gstatic.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://firestore.googleapis.com;">
+<meta name="description" content="OffGrid - an online safety dashboard for scam, deepfake, bullying and screen-time awareness.">
+<title>OffGrid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.comcss2" crossorigin>
+<link href="https://fonts.googleapis.com/?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="main.css?v=deepfake-bar-color">
+<style>
+  /* Auth-gate: hide the app until Firebase confirms a signed-in user,
+     so there's no flash of dashboard content for unauthenticated visitors. */
+  .app{display:none}
+  .auth-loading{min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:#0D1620;color:#8FA3AC;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px}
+</style>
+</head>
+<body>
+<div class="auth-loading" id="authLoading">Checking your session&hellip;</div>
+<div class="app" id="appRoot">
+<aside class="sidebar">
+  <div class="brand">OffGrid</div>
+  <nav class="nav" aria-label="Main navigation">
+    <button data-page="home" class="active">🏠 Dashboard</button>
+    <button data-page="scam">🛡️ Scam Checker</button>
+    <button data-page="deepfake">🖼️ Deepfake Checker</button>
+    <button data-page="bullying">💬 Bullying Flag</button>
+    <button data-page="screen">⏱️ Screen Time</button>
+    <button data-page="history">🕘 History</button>
+  </nav>
+  <div class="profile-menu" id="profileMenu">
+    <button class="profile-trigger" id="profileTrigger" type="button" aria-expanded="false" aria-controls="profileDropdown">
+      <span class="profile-avatar" id="profileAvatar">OU</span>
+      <span class="profile-summary"><strong id="profileName">OffGrid User</strong><small id="profileEmail">Personal account</small></span>
+      <span class="profile-chevron" aria-hidden="true">⌄</span>
+    </button>
+    <div class="profile-dropdown" id="profileDropdown" hidden>
+      <div class="profile-dropdown-heading">Account</div>
+      <button class="profile-action" id="logoutBtn" type="button">↪ Log out</button>
+    </div>
+  </div>
+    <div class="top-controls">
+      <a class="about-toggle" href="aboutus.html">About Us</a>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode">🌙 Dark mode</button>
+    </div>
+</aside>
+
+<main class="main">
+  <div class="mobile-bar">
+    <div class="mobile-title">OffGrid</div>
+    <button class="theme-toggle" id="mobileThemeToggle" type="button" aria-label="Switch to dark mode">🌙</button>
+    <button class="mobile-menu" id="menuBtn" aria-label="Open navigation">☰</button>
+    <nav class="nav-mobile" id="mobileNav" aria-label="Mobile navigation">
+      <button data-page="home" class="active">🏠 Dashboard</button>
+      <button data-page="scam">🛡️ Scam Checker</button>
+      <button data-page="deepfake">🖼️ Deepfake Checker</button>
+      <button data-page="bullying">💬 Bullying Flag</button>
+      <button data-page="screen">⏱️ Screen Time</button>
+      <button data-page="history">🕘 History</button>
+      <a class="about-link" href="aboutus.html">ℹ️ About Us</a>
+    </nav>
+  </div>
+
+  <section class="page active" id="home">
+    <div class="header dashboard-header">
+      <!-- Section: Digital wellbeing and safety dashboard -->
+      <div><h1 class="typewriter" id="dashboardHeadline" aria-live="polite">Stay Safe Stay, Balanced Stay, Connected.</h1><p class="subtitle dashboard-subtitle">A simple dashboard to check suspicious messages, images, harmful language and screen-time habits.</p></div>
+    </div>
+    <div class="grid stats">
+      <div class="card stat"><div class="stat-label">Total checks</div><div class="stat-value" id="statTotal">0</div><small>Saved to your account</small></div>
+      <div class="card stat"><div class="stat-label">Scam warnings</div><div class="stat-value" id="statScam">0</div><small>Suspicious checks</small></div>
+      <div class="card stat"><div class="stat-label">Bullying flags</div><div class="stat-value" id="statBullying">0</div><small>Potentially harmful</small></div>
+      <div class="card stat"><div class="stat-label">Weekly average</div><div class="stat-value" id="statAvg">0h</div><small>Screen time / day</small></div>
+    </div>
+    <div class="grid feature-grid">
+      <div class="card feature"><div class="icon">🛡️</div><h2>Scam Checker</h2><p>Analyze links and messages for urgency, credential requests, shortened URLs and other warning signs.</p><button class="btn btn-primary" data-page="scam">Check now</button></div>
+      <div class="card feature"><div class="icon">🖼️</div><h2>Deepfake Checker</h2><p>Preview an image and run a demo confidence assessment. A backend can later provide real AI analysis.</p><button class="btn btn-primary" data-page="deepfake">Analyze image</button></div>
+      <div class="card feature"><div class="icon">💬</div><h2>Bullying Flag</h2><p>Detect common insulting, threatening and abusive language and get a safer rephrase.</p><button class="btn btn-primary" data-page="bullying">Analyze text</button></div>
+      <div class="card feature"><div class="icon">⏱️</div><h2>Screen Time</h2><p>Track daily hours, compare them with your goal and see a visual 7-day trend.</p><button class="btn btn-primary" data-page="screen">View habits</button></div>
+    </div>
+    <div class="card recent"><div class="toolbar"><div><h2>Recent activity</h2><p class="subtitle">Your latest checks.</p></div><div class="spacer"></div><button class="btn btn-secondary" data-page="history">View history</button></div><div id="recentList" class="history-list"></div></div>
+  </section>
+
+  <section class="page" id="scam">
+    <!-- Section: Scam Checker -->
+    <div class="header"><div><h1 class="typewriter section-typewriter" data-title="Scam Checker">Scam Checker</h1><p class="subtitle scam-subtitle">Paste a URL or suspicious message to check for common security risk indicators.</p></div></div>
+    <div class="card">
+      <div class="form-grid">
+        <div class="field full"><label for="scamInput">URL or message</label><textarea id="scamInput" maxlength="5000" placeholder="Example: Urgent! Verify your bank account now at http://bit.ly/example and send your OTP..."></textarea></div>
+        <div class="field"><label for="scamType">Input type</label><select id="scamType"><option value="auto">Auto detect</option><option value="url">URL</option><option value="message">Message</option></select></div>
+        <div class="field"><label for="scamSensitivity">Sensitivity</label><select id="scamSensitivity"><option value="normal">Normal</option><option value="high">High</option></select></div>
+      </div>
+      <div class="actions"><button class="btn btn-primary" id="scamBtn" type="button">Analyze</button><button class="btn btn-ghost" id="scamClear" type="button">Clear</button></div>
+      <div id="scamResult" class="result" hidden></div>
+    </div>
+  </section>
+
+  <section class="page" id="deepfake">
+    <!-- Section: Deepfake Image Checker -->
+    <div class="header"><div><h1 class="typewriter section-typewriter" data-title="Deepfake Image Checker">Deepfake Image Checker</h1><p class="subtitle">Select or drag an image for a local preview and demo analysis. Connect the existing Flask endpoint for real model inference.</p></div></div>
+    <div class="card">
+      <div class="dropzone" id="dropzone"><strong>Drop an image here</strong><span>or choose JPG, PNG, WEBP up to 8 MB</span><div style="margin-top:14px"><input id="imageInput" type="file" accept="image/jpeg,image/png,image/webp"></div></div>
+      <img id="preview" class="preview" alt="Selected image preview">
+      <div id="deepfakeProgress" class="progress" hidden><div id="deepfakeBar" class="progress-bar"></div></div>
+      <div class="actions"><button class="btn btn-primary" id="deepfakeBtn" disabled>Analyze image</button><button class="btn btn-ghost" id="deepfakeClear">Clear</button></div>
+      <div id="deepfakeResult" class="result" hidden></div>
+    </div>
+  </section>
+
+  <section class="page" id="bullying">
+    <!-- Section: Bullying Flag and safer communication -->
+    <div class="header"><div><h1 class="typewriter section-typewriter" data-title="Bullying Flag">Bullying Flag</h1><p class="subtitle">Identify common harmful-language signals and see a calmer alternative. Context matters, so treat this as an awareness tool.</p></div></div>
+    <div class="card">
+      <div class="field"><label for="bullyingInput">Text to analyze</label><textarea id="bullyingInput" maxlength="5000" placeholder="Paste a message or comment here..."></textarea></div>
+      <div class="actions"><button class="btn btn-primary" id="bullyingBtn">Analyze text</button><button class="btn btn-ghost" id="bullyingClear">Clear</button></div>
+      <div id="bullyingResult" class="result" hidden></div>
+    </div>
+  </section>
+
+  <section class="page" id="screen">
+    <!-- Section: Screen Time and digital wellbeing -->
+    <div class="header"><div><h1 class="typewriter section-typewriter" data-title="Screen Time">Screen Time</h1><p class="subtitle">Enter your daily screen time and track a rolling 7-day view. Data is saved to your account.</p></div></div>
+    <div class="grid" style="grid-template-columns:1.5fr 1fr">
+      <div class="card">
+        <div class="form-grid">
+          <div class="field"><label for="screenDate">Date</label><input id="screenDate" type="date"></div>
+          <div class="field"><label for="screenHours">Hours used</label><input id="screenHours" type="number" min="0" max="24" step=".25" placeholder="e.g. 5.5"></div>
+          <div class="field"><label for="screenGoal">Daily goal (hours)</label><input id="screenGoal" type="number" min="0.5" max="24" step=".5" value="6"></div>
+          <div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="screenSave">Save day</button></div>
+        </div>
+        <div class="chart-wrap"><canvas id="screenChart" class="chart" aria-label="Seven day screen time chart"></canvas></div>
+        <div class="chart-legend"><span>Older</span><span id="chartAverage">Average: 0h</span><span>Today</span></div>
+      </div>
+      <div class="card">
+        <h2>Wellbeing snapshot</h2>
+        <div id="wellbeingBox" class="result info">Add today's screen time to get a recommendation.</div>
+        <div style="margin-top:18px"><b>Tips</b><ul style="margin:10px 0 0 18px;color:var(--muted);font-size:13px;display:grid;gap:7px"><li>Take a short break after long sessions.</li><li>Keep distracting notifications limited.</li><li>Set a realistic daily target instead of chasing perfection.</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="history">
+    <!-- Section: History, polish, and privacy -->
+    <div class="header"><div><h1 class="typewriter section-typewriter" data-title="History">History</h1><p class="subtitle">Review checks saved to your account.</p></div></div>
+    <div class="card">
+      <div class="toolbar"><div class="spacer"></div><button class="btn btn-danger" id="clearHistory">Clear all history</button></div>
+      <div id="historyList" class="history-list"></div>
+    </div>
+  </section>
+
+  <footer>Never Share The OTP · Never enter passwords, OTPs, banking PINs or other secrets.</footer>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD2Ctr1g32K84SAcuYnJ_EgJvrxHBD3UsI",
+  authDomain: "offgrid-3b579.firebaseapp.com",
+  projectId: "offgrid-3b579",
+  storageBucket: "offgrid-3b579.firebasestorage.app",
+  messagingSenderId: "520512562949",
+  appId: "1:520512562949:web:5e9d8f485019a4723b796c"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+let currentUid = null;
+
+onAuthStateChanged(auth, function (user) {
+  if (!user) {
+    window.location.replace("login.html");
+    return;
+  }
+
+  currentUid = user.uid;
+  try {
+    const existing = JSON.parse(localStorage.getItem("offgrid_profile") || "{}");
+    localStorage.setItem("offgrid_profile", JSON.stringify({
+      uid: user.uid,
+      name: user.displayName || existing.name || "OffGrid User",
+      email: user.email || existing.email || "",
+      phoneNumber: user.phoneNumber || existing.phoneNumber || ""
+    }));
+  } catch {}
+
+  document.getElementById("authLoading").style.display = "none";
+  document.getElementById("appRoot").style.display = "block";
+  window.dispatchEvent(new Event("offgrid:auth-ready"));
+  loadDashboard(currentUid).catch(error => {
+    console.error("Could not load dashboard:", error);
+    showToast("Could not load your saved activity. Check your connection and Firestore rules.");
+    $("recentList").innerHTML = '<div class="empty">Could not load your activity. Please reload to try again.</div>';
+    $("historyList").innerHTML = '<div class="empty">Could not load your activity. Please reload to try again.</div>';
+  });
+});
+
+window.__offgridSignOut = async function () {
+  try {
+    await signOut(auth);
+  } catch (err) {
+    console.error("Logout error:", err);
+  } finally {
+    window.location.href = "login.html";
+  }
+};
+
+/* ---------------------------
+   Phase 3: API-ready architecture
+---------------------------- */
+const API_BASE = "http://127.0.0.1:5000/api";
+const DEEPFAKE_API_BASE = "http://127.0.0.1:5001/api";
+const STORAGE = {
+  goal: "sbo_screen_goal_v2",
+  theme: "sbo_theme_v1"
+};
+const LIMITS = {text:5000};
+let dashboardItems = [];
+
+const $ = (id) => document.getElementById(id);
+const pages = [...document.querySelectorAll(".page")];
+const navButtons = [...document.querySelectorAll("[data-page]")];
+
+function loadProfile(){
+  let profile={};
+  try{profile=JSON.parse(localStorage.getItem("offgrid_profile")||"{}")}catch{}
+  const name=typeof profile.name==="string"&&profile.name.trim()?profile.name.trim():"OffGrid User";
+  const email=typeof profile.email==="string"&&profile.email.trim()?profile.email.trim():(profile.phoneNumber||"Personal account");
+  $("profileName").textContent=name;
+  $("profileEmail").textContent=email;
+  $("profileAvatar").textContent=name.split(/\s+/).slice(0,2).map(part=>part[0]).join("").toUpperCase()||"OU";
+}
+loadProfile();
+// Re-run once the auth-gate script confirms the signed-in user and
+// refreshes offgrid_profile with live Firebase values.
+window.addEventListener("offgrid:auth-ready", loadProfile);
+
+const typewriterMessages=[
+  "Stay Safe. Stay Balanced. Stay Connected.",
+  "Safer Screens. Healthier Minds.",
+  "Think Smart. Stay Safe. Live Balanced.",
+  "A Safer Digital World for Everyone."
+];
+function startTypewriter(){
+  const headline=$("dashboardHeadline");
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  let messageIndex=0,characterIndex=typewriterMessages[0].length,isDeleting=false;
+  function type(){
+    const message=typewriterMessages[messageIndex];
+    headline.textContent=message.slice(0,characterIndex);
+    let delay=isDeleting?35:65;
+    if(!isDeleting && characterIndex===message.length){
+      isDeleting=true;delay=1800;
+    }else if(isDeleting && characterIndex===0){
+      isDeleting=false;messageIndex=(messageIndex+1)%typewriterMessages.length;delay=400;
+    }
+    characterIndex+=isDeleting?-1:1;
+    setTimeout(type,delay);
+  }
+  setTimeout(()=>{characterIndex=0;type()},1000);
+}
+startTypewriter();
+
+function startSectionTypewriter(page){
+  const headline=document.querySelector(`#${page} .section-typewriter`);
+  if(!headline)return;
+  const message=headline.dataset.title||headline.textContent;
+  clearTimeout(headline.typewriterTimer);
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    headline.textContent=message;
+    return;
+  }
+  let characterIndex=message.length,isDeleting=false;
+  function type(){
+    headline.textContent=message.slice(0,characterIndex);
+    let delay=isDeleting?35:65;
+    if(!isDeleting&&characterIndex===message.length){isDeleting=true;delay=1800}
+    else if(isDeleting&&characterIndex===0){isDeleting=false;delay=400}
+    characterIndex+=isDeleting?-1:1;
+    headline.typewriterTimer=setTimeout(type,delay);
+  }
+  headline.typewriterTimer=setTimeout(()=>{characterIndex=0;type()},400);
+}
+
+function setTheme(theme){
+  const isDark=theme==="dark";
+  document.documentElement.dataset.theme=isDark?"dark":"light";
+  try{localStorage.setItem(STORAGE.theme,isDark?"dark":"light")}catch{}
+  $("themeToggle").textContent=isDark?"☀️ Light mode":"🌙 Dark mode";
+  $("themeToggle").setAttribute("aria-label",isDark?"Switch to light mode":"Switch to dark mode");
+  $("mobileThemeToggle").textContent=isDark?"☀️":"🌙";
+  $("mobileThemeToggle").setAttribute("aria-label",isDark?"Switch to light mode":"Switch to dark mode");
+}
+let savedTheme="dark";
+try{savedTheme=localStorage.getItem(STORAGE.theme)||"dark"}catch{}
+setTheme(savedTheme==="dark"?"dark":"light");
+
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[ch]));
+}
+function showToast(message){
+  const t=$("toast"); t.textContent=message; t.classList.add("show");
+  clearTimeout(showToast.timer); showToast.timer=setTimeout(()=>t.classList.remove("show"),2200);
+}
+function nowText(){ return new Date().toLocaleString([], {dateStyle:"medium", timeStyle:"short"}); }
+function saveJSON(key,value){
+  try{localStorage.setItem(key,JSON.stringify(value));return true}catch{return false}
+}
+function loadJSON(key,fallback){
+  try{return JSON.parse(localStorage.getItem(key)) ?? fallback}catch{return fallback}
+}
+function boundedText(value){return String(value ?? "").trim().slice(0,LIMITS.text)}
+function itemDate(item){
+  if(item.createdAt && typeof item.createdAt.toDate==="function")return item.createdAt.toDate();
+  if(typeof item.time==="string"){
+    const date=new Date(item.time);
+    if(Number.isFinite(date.getTime()))return date;
+  }
+  return null;
+}
+function renderItem(item,compact=false){
+  const input=typeof item.input==="string"?item.input:"";
+  const date=itemDate(item);
+  const time=date?date.toLocaleString([],{dateStyle:compact?"short":"medium",timeStyle:compact?undefined:"short"}):"";
+  const limit=compact?100:180;
+  return `<div class="history-item">
+    <div><b>${escapeHTML(item.title||"Activity")}</b><div><span>${escapeHTML(item.detail||"")}</span></div>${input?`<div><small>Input: ${escapeHTML(input.slice(0,limit))}${input.length>limit?"...":""}</small></div>`:""}</div>
+    <span>${escapeHTML(time)}<button class="btn btn-ghost" type="button" data-delete-item="${escapeHTML(item.id)}" aria-label="Delete ${escapeHTML(item.title||"activity")}">Delete</button></span>
+  </div>`;
+}
+function renderHistory(){
+  const empty='<div class="empty">Nothing here yet. Your activity will appear here.</div>';
+  $("historyList").innerHTML=dashboardItems.map(item=>renderItem(item)).join("")||empty;
+  $("recentList").innerHTML=dashboardItems.slice(0,5).map(item=>renderItem(item,true)).join("")||empty;
+}
+function screenTimeByDate(){
+  const data={};
+  dashboardItems.slice().reverse().forEach(item=>{
+    if(item.type==="screen"&&item.date&&Number.isFinite(Number(item.hours))){
+      data[item.date]=Number(item.hours);
+    }
+  });
+  return data;
+}
+function updateDashboard(){
+  $("statTotal").textContent=dashboardItems.length;
+  $("statScam").textContent=dashboardItems.filter(x=>x.type==="scam" && x.status!=="safe").length;
+  $("statBullying").textContent=dashboardItems.filter(x=>x.type==="bullying" && x.status!=="safe").length;
+  const values=Object.values(screenTimeByDate());
+  const avg=values.length ? values.reduce((a,b)=>a+Number(b),0)/values.length : 0;
+  $("statAvg").textContent=avg.toFixed(1)+"h";
+}
+async function loadDashboard(uid){
+  dashboardItems=[];
+  $("recentList").replaceChildren();
+  $("historyList").replaceChildren();
+  renderHistory();
+  updateDashboard();
+  const itemsQuery=query(collection(db,"users",uid,"items"),orderBy("createdAt","desc"));
+  const snapshot=await getDocs(itemsQuery);
+  dashboardItems=snapshot.docs.map(itemDoc=>({...itemDoc.data(),id:itemDoc.id}));
+  renderHistory();
+  updateDashboard();
+  if(typeof drawChart==="function")drawChart();
+}
+async function addItem(uid,data){
+  const itemRef=await addDoc(collection(db,"users",uid,"items"),{
+    ...data,
+    createdAt:serverTimestamp()
+  });
+  await loadDashboard(uid);
+  return itemRef.id;
+}
+async function deleteItem(uid,itemId){
+  await deleteDoc(doc(db,"users",uid,"items",itemId));
+  await loadDashboard(uid);
+}
+async function addHistory(type,title,detail,status="info",input="",metadata={}){
+  if(!currentUid){
+    showToast("Your account is not ready. Please try again.");
+    return false;
+  }
+  try{
+    await addItem(currentUid,{
+      type,title,detail,status,input:boundedText(input),...metadata
+    });
+    return true;
+  }catch(error){
+    console.error("Could not save activity:",error);
+    showToast("Could not save activity to your account. Check your connection and Firestore rules.");
+    return false;
+  }
+}
+function go(page){
+  pages.forEach(p=>p.classList.toggle("active",p.id===page));
+  navButtons.forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+  startSectionTypewriter(page);
+  try{sessionStorage.setItem("offgrid_active_page",page)}catch{}
+  $("mobileNav").classList.remove("open");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+navButtons.forEach(btn=>btn.addEventListener("click",()=>go(btn.dataset.page)));
+let initialPage="home";
+try{initialPage=sessionStorage.getItem("offgrid_active_page")||"home"}catch{}
+if(pages.some(page=>page.id===initialPage))go(initialPage);
+$("themeToggle").addEventListener("click",()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark"));
+$("mobileThemeToggle").addEventListener("click",()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark"));
+$("menuBtn").addEventListener("click",()=>$("mobileNav").classList.toggle("open"));
+
+$("profileTrigger").addEventListener("click",()=>{
+  const isOpen=$("profileTrigger").getAttribute("aria-expanded")==="true";
+  $("profileTrigger").setAttribute("aria-expanded",String(!isOpen));
+  $("profileDropdown").hidden=isOpen;
+});
+$("logoutBtn").addEventListener("click",()=>{
+  try{sessionStorage.clear()}catch{}
+  // Signs out of Firebase too (see the module script above), then
+  // redirects to login.html once that completes.
+  if(typeof window.__offgridSignOut==="function"){
+    window.__offgridSignOut();
+  }else{
+    window.location.href="login.html";
+  }
+});
+document.addEventListener("click",event=>{
+  if(!$("profileMenu").contains(event.target)){
+    $("profileTrigger").setAttribute("aria-expanded","false");
+    $("profileDropdown").hidden=true;
+  }
+});
+
+/* ---------------------------
+   Scam Checker: connected to Flask backend (POST /api/scam/check)
+---------------------------- */
+function mapSensitivity(uiValue){
+  // The UI only exposes "Normal"/"High"; the backend also supports "low".
+  // "normal" maps to the backend's "medium" tier.
+  return uiValue==="high" ? "high" : "medium";
+}
+async function checkScamAPI(input,inputType,sensitivity){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),10000);
+  let response;
+  try{
+    response=await fetch(API_BASE+"/scam/check",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({input,input_type:inputType,sensitivity}),
+      signal:controller.signal
+    });
+  }catch(err){
+    throw new Error(err.name==="AbortError" ? "timeout" : "network");
+  }finally{
+    clearTimeout(timer);
+  }
+  if(response.status===400) throw new Error("bad_request");
+  if(!response.ok) throw new Error("server");
+  let data;
+  try{ data=await response.json() }catch{ throw new Error("invalid") }
+  if(!data || typeof data!=="object" || !data.verdict) throw new Error("invalid");
+  return data;
+}
+function analyzeScamLocally(input,inputType){
+  const lower=input.toLowerCase(), signals=[];
+  const add=(condition,message)=>{if(condition&&!signals.includes(message))signals.push(message)};
+  add(/urgent|immediately|act now|final notice|limited time|expire|suspended|locked|blocked|freeze your account/.test(lower),"Uses urgency language to pressure quick action");
+  add(/password|otp|pin|cvv|ssn|social security|bank details|card number/.test(lower),"Asks for sensitive personal or payment information");
+  add(/pay|payment|fee|wire|send money|gift card|venmo|zelle/.test(lower),"Asks you to pay, send money, or provide payment details");
+  add(/won|winner|prize|gift card|free iphone|lottery/.test(lower),"Uses a prize or reward to attract attention");
+  add(/https?:\/\/|www\.|\b[a-z0-9-]+\.(xyz|top|click|work|gq|tk|ml)\b/.test(lower),"Contains a link that should be checked carefully");
+  add(/\b\d{1,3}(?:\.\d{1,3}){3}\b/.test(lower),"Link uses a raw IP address instead of a domain name");
+  const upiCollect=/\b(upi|gpay|google pay|phonepe|paytm|bhim)\b.{0,80}\b(collect request|request money|approve(?: the)? request|payment request|pay request)\b|\b(collect request|request money|approve(?: the)? request|payment request|pay request)\b.{0,80}\b(upi|gpay|google pay|phonepe|paytm|bhim)\b/.test(lower);
+  add(upiCollect,"Mentions a UPI collect/payment request; verify requests in your UPI app before approving");
+  add(/\b(aadhaar|aadhar|pan(?: card)?)\b.{0,60}\b(update|verify|link|kyc|suspend|blocked|expire|reactivate)\b|\b(update|verify|link|kyc|suspend|blocked|expire|reactivate)\b.{0,60}\b(aadhaar|aadhar|pan(?: card)?)\b/.test(lower),"Requests an Aadhaar or PAN update/verification; use only the official service");
+  const rupeeAmount=/(₹|rs\.?\s*)\s?\d[\d,]*(?:\.\d{1,2})?/.test(lower);
+  const rupeePaymentContext=/\b(pay|send|transfer|deposit|claim|receive|collect|refund|cashback|reward|prize|fee)\b/.test(lower);
+  add(rupeeAmount&&rupeePaymentContext,"Pairs an Indian rupee amount with a payment, transfer, claim, or reward request");
+  const score=Math.min(signals.length*25,100);
+  const riskScore=upiCollect?Math.max(score,75):score;
+  const riskVerdict=riskScore>=60?"danger":riskScore>=25?"warn":"safe";
+  return {
+    verdict:riskVerdict,
+    label:`${riskVerdict==="danger"?"Higher":riskVerdict==="warn"?"Medium":"Lower"} risk · ${riskScore}/100`,
+    signals,
+    safety_recommendation:"Never share OTPs, passwords, PINs or card security codes through a link or message.",
+    local:true
+  };
+}
+const SCAM_DRAFT_KEY="offgrid_scam_draft";
+function saveScamDraft(){
+  try{sessionStorage.setItem(SCAM_DRAFT_KEY,JSON.stringify({
+    input:$ ("scamInput").value,
+    type:$ ("scamType").value,
+    sensitivity:$ ("scamSensitivity").value
+  }))}catch{}
+}
+function restoreScamDraft(){
+  try{
+    const draft=JSON.parse(sessionStorage.getItem(SCAM_DRAFT_KEY)||"null");
+    if(!draft)return;
+    $("scamInput").value=typeof draft.input==="string"?draft.input:"";
+    if(draft.type)$("scamType").value=draft.type;
+    if(draft.sensitivity)$("scamSensitivity").value=draft.sensitivity;
+  }catch{}
+}
+restoreScamDraft();
+$("scamType").addEventListener("change",saveScamDraft);
+$("scamSensitivity").addEventListener("change",saveScamDraft);
+window.addEventListener("beforeunload",saveScamDraft);
+$("scamBtn").addEventListener("click",async(event)=>{
+  event.preventDefault();
+  const text=boundedText($("scamInput").value);
+  if(!text){showToast("Paste a URL or message first.");return}
+  const inputType=$("scamType").value;
+  const sensitivity=mapSensitivity($("scamSensitivity").value);
+  const box=$("scamResult"), btn=$("scamBtn"), originalLabel=btn.textContent;
+  btn.disabled=true; btn.textContent="Analyzing...";
+  box.hidden=false; box.className="result info";
+  box.innerHTML=`<div class="result-title">Checking...</div><p>Contacting the OffGrid server for analysis.</p>`;
+  try{
+    const data=await checkScamAPI(text,inputType,sensitivity);
+    const level=data.verdict;
+    const label=data.label || `${data.risk_label||"Result"} \u00b7 ${data.risk_score??data.score??0}/100`;
+    const reasons=Array.isArray(data.signals)&&data.signals.length ? data.signals : (Array.isArray(data.reasons)?data.reasons:[]);
+    const tip=data.safety_recommendation || data.safety_tip || "Never share OTPs, passwords, PINs or card security codes through a link or message.";
+    box.className="result "+level;
+    box.innerHTML=`<div class="result-title">${escapeHTML(label)}</div>
+    <p>${reasons.length ? "Signals found:" : "No strong warning signals were detected."}</p>
+    <div class="chips">${reasons.map(msg=>`<span class="chip">${escapeHTML(msg)}</span>`).join("")}</div>
+    <div style="margin-top:12px;font-size:13px"><b>Safety tip:</b> ${escapeHTML(tip)}</div>
+    <div class="actions" style="margin-top:12px"><button class="btn btn-secondary" id="markSpamBtn" type="button">Mark as Spam</button></div>`;
+    $("markSpamBtn").addEventListener("click",async()=>{
+      const markSpamButton=$("markSpamBtn");
+      markSpamButton.disabled=true;
+      try{
+        const spamResponse=await fetch(API_BASE+"/scam/mark-spam",{
+          method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({text})
+        });
+        if(!spamResponse.ok)throw new Error("mark_spam_failed");
+        const spamData=await spamResponse.json();
+        addHistory("scam","Marked as spam","User confirmed this message as spam","danger",text);
+        markSpamButton.disabled=true;
+        showToast(spamData.duplicate?"Already saved. Model retrained.":"Spam saved. Model retrained.");
+      }catch{
+        showToast("Could not save spam example. Start scam.py first.");
+      }finally{
+        markSpamButton.disabled=false;
+      }
+    });
+    addHistory("scam","Scam check",label,level,text);
+  }catch(err){
+    if(err.message==="network"||err.message==="timeout"){
+      const data=analyzeScamLocally(text,inputType);
+      const reasons=data.signals;
+      box.className="result "+data.verdict;
+      box.innerHTML=`<div class="result-title">${escapeHTML(data.label)}</div>
+      <p>${reasons.length ? "Signals found (offline check):" : "No strong warning signals were detected by the offline check."}</p>
+      <div class="chips">${reasons.map(msg=>`<span class="chip">${escapeHTML(msg)}</span>`).join("")}</div>
+      <div style="margin-top:12px;font-size:13px"><b>Safety tip:</b> ${escapeHTML(data.safety_recommendation)}</div>`;
+      addHistory("scam","Scam check (offline)",data.label,data.verdict,text);
+      return;
+    }
+    const messages={
+      bad_request:"The server could not process that input. Please check it and try again.",
+      server:"The OffGrid server ran into a problem processing that request. Please try again shortly.",
+      invalid:"The server returned an unexpected response. Please try again."
+    };
+    box.className="result danger";
+    box.innerHTML=`<div class="result-title">Connection problem</div><p>${escapeHTML(messages[err.message]||messages.network)}</p>`;
+  }finally{
+    btn.disabled=false; btn.textContent=originalLabel;
+  }
+});
+$("scamClear").addEventListener("click",()=>{
+  $("scamInput").value="";
+  $("scamResult").hidden=true;
+  try{sessionStorage.removeItem(SCAM_DRAFT_KEY)}catch{}
+});
+
+/* ---------------------------
+   Phase 2: Deepfake UX
+---------------------------- */
+let selectedImage=null;
+let previewUrl="";
+const MAX_IMAGE=8*1024*1024;
+async function hasValidImageSignature(file){
+  const bytes=new Uint8Array(await file.slice(0,12).arrayBuffer());
+  const isPng=bytes.length>=8&&bytes.slice(0,8).every((value,index)=>value===[137,80,78,71,13,10,26,10][index]);
+  const isJpeg=bytes.length>=3&&bytes[0]===255&&bytes[1]===216&&bytes[2]===255;
+  const isWebp=bytes.length>=12&&String.fromCharCode(...bytes.slice(0,4))==="RIFF"&&String.fromCharCode(...bytes.slice(8,12))==="WEBP";
+  return isPng||isJpeg||isWebp;
+}
+async function setImage(file){
+  if(!file)return;
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){showToast("Please choose JPG, PNG or WEBP.");return}
+  if(file.size>MAX_IMAGE){showToast("Image must be 8 MB or smaller.");return}
+  if(!(await hasValidImageSignature(file))){showToast("The selected file is not a valid image.");return}
+  selectedImage=file;
+  if(previewUrl)URL.revokeObjectURL(previewUrl);
+  previewUrl=URL.createObjectURL(file);
+  $("preview").src=previewUrl;
+  $("preview").style.display="block";
+  $("deepfakeBtn").disabled=false;
+}
+$("imageInput").addEventListener("change",e=>setImage(e.target.files[0]));
+["dragenter","dragover"].forEach(ev=>$("dropzone").addEventListener(ev,e=>{e.preventDefault();$("dropzone").classList.add("drag")}));
+["dragleave","drop"].forEach(ev=>$("dropzone").addEventListener(ev,e=>{e.preventDefault();$("dropzone").classList.remove("drag")}));
+$("dropzone").addEventListener("drop",e=>setImage(e.dataTransfer.files[0]));
+$("deepfakeClear").addEventListener("click",()=>{
+  selectedImage=null;$("imageInput").value="";$("preview").removeAttribute("src");$("preview").style.display="none";
+  if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl="";
+  $("deepfakeBtn").disabled=true;$("deepfakeResult").hidden=true;
+});
+// Deepfake analysis runs through the standalone deepfake.py service. Never
+// present a generated demo score as if it were an AI result.
+async function tryDeepfakeAPI(file){
+  const form=new FormData();form.append("image",file);
+  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),180000);
+  try{
+    const response=await fetch(DEEPFAKE_API_BASE+"/deepfake/analyze",{method:"POST",body:form,signal:controller.signal});
+    let data;
+    try{data=await response.json()}catch{throw new Error("The Deepfake API returned an invalid response.")}
+    if(!response.ok)throw new Error(data.error||"The Deepfake API could not analyze this image.");
+    if(!data.success||!["fake","real","uncertain"].includes(data.prediction))throw new Error("The Deepfake API returned an incomplete result.");
+    return data;
+  }finally{clearTimeout(timer)}
+}
+async function sendDeepfakeFeedback(label,file){
+  if(!file)return;
+  const buttons=[$("markRealBtn"),$("markFakeBtn")];
+  buttons.forEach(button=>button.disabled=true);
+  const form=new FormData();form.append("label",label);form.append("image",file);
+  try{
+    const response=await fetch(DEEPFAKE_API_BASE+"/deepfake/feedback",{method:"POST",body:form});
+    if(!response.ok)throw new Error("feedback_failed");
+    showToast(`Saved in ${label}/ dataset.`);
+  }catch{showToast("Could not save feedback. Start deepfake.py first.")}
+  finally{buttons.forEach(button=>button.disabled=false)}
+}
+$("deepfakeBtn").addEventListener("click",async()=>{
+  if(!selectedImage)return;
+  $("deepfakeBtn").disabled=true;$("deepfakeProgress").hidden=false;$("deepfakeBar").style.width="20%";
+  await new Promise(r=>setTimeout(r,350));$("deepfakeBar").style.width="60%";
+  try{
+    const result=await tryDeepfakeAPI(selectedImage);
+    const rawScore=Number(result.deepfake_score);
+    if(!Number.isFinite(rawScore))throw new Error("The Deepfake API returned an invalid score.");
+    const score=Math.max(0,Math.min(100,rawScore));
+    const uncertain=result.prediction==="uncertain";
+    const level=uncertain?"warn":score>=70?"danger":score>=45?"warn":"safe";
+    const label=result.label||(uncertain?"Uncertain":score>=70?"Likely manipulated":score>=45?"Uncertain":"Lower manipulation signal");
+    const metadataSignals=Array.isArray(result.metadata_signals)?result.metadata_signals:[];
+    const modelResults=Array.isArray(result.model_results)?result.model_results:[];
+    const failedModels=Array.isArray(result.failed_models)?result.failed_models:[];
+    const configuredModelCount=Number(result.configured_model_count)||modelResults.length;
+    $("deepfakeBar").style.width="100%";
+    $("deepfakeResult").hidden=false;$("deepfakeResult").className="result "+level;
+    $("deepfakeResult").innerHTML=`<div class="result-title">${escapeHTML(label)}</div>
+    <p>Average estimated manipulation score: <b>${score}%</b> · ${escapeHTML(result.confidence_level||"")} · ${modelResults.length}/${configuredModelCount} models responded</p>
+    ${uncertain?"<p>The models disagree or are not confident enough for a reliable verdict.</p>":""}
+    <div class="meter ${level}"><i style="width:${score}%"></i></div>
+    ${modelResults.length?`<div class="chips">${modelResults.map(item=>`<span class="chip">${escapeHTML(item.model)}: ${Math.round(Number(item.fake_probability)*100)}% fake</span>`).join("")}</div>`:""}
+    ${failedModels.length?`<p>Unavailable models: ${failedModels.map(escapeHTML).join(", ")}</p>`:""}
+    ${metadataSignals.length?`<p><b>Additional metadata signal (not scored):</b></p><div class="chips">${metadataSignals.map(signal=>`<span class="chip">${escapeHTML(signal)}</span>`).join("")}</div>`:""}
+    <div class="deepfake-note">This is an awareness result, not proof that an image is fake. Verify provenance and context independently.</div>
+    <div class="feedback" aria-label="Label this image"><span>Was this result correct?</span><button class="btn btn-secondary" id="markRealBtn" type="button">Mark Real</button><button class="btn btn-secondary" id="markFakeBtn" type="button">Mark Fake</button></div>`;
+    ["real", "fake"].forEach(label=>$("mark"+label[0].toUpperCase()+label.slice(1)+"Btn").addEventListener("click",()=>sendDeepfakeFeedback(label,selectedImage)));
+    addHistory("deepfake","Deepfake image check",`${label} (${score}%)`,level,selectedImage.name);
+  }catch(error){
+    $("deepfakeResult").hidden=false;$("deepfakeResult").className="result danger";
+    $("deepfakeResult").innerHTML=`<div class="result-title">Analysis unavailable</div><p>${escapeHTML(error.message||"The Deepfake service could not analyze this image. Please try again.")}</p>`;
+  }finally{
+    $("deepfakeBtn").disabled=false;
+    setTimeout(()=>{$("deepfakeProgress").hidden=true;$("deepfakeBar").style.width="0%"},400);
+  }
+});
+
+/* ---------------------------
+   Phase 2: Bullying analysis
+---------------------------- */
+const bullyingRules=[
+  {name:"Insult",words:["stupid","idiot","dumb","ugly","loser","moron"]},
+  {name:"Harassment",words:["shut up","nobody likes you","go away","you suck"]},
+  {name:"Threat",words:["i will hurt you","kill you","beat you","you will regret"]},
+  {name:"Hate/abuse",words:["hate you","worthless","disgusting"]},
+  {name:"Sexual harassment",words:["send nudes","show me your body"]}
+];
+function analyzeBullying(text){
+  const lower=text.toLowerCase();const found=[];
+  bullyingRules.forEach(rule=>rule.words.forEach(w=>{if(lower.includes(w)&&!found.includes(rule.name))found.push(rule.name)}));
+  let severity=found.length>=2?"High":found.length===1?"Moderate":"Low";
+  return {found,severity};
+}
+function safeRephrase(text){
+  return "I’m upset about this situation. Please stop, give me some space, and let’s discuss the problem respectfully.";
+}
+// TODO(backend): once bullying.py exposes POST /api/bullying/check, replace the
+// local analyzeBullying(text) call below with a fetch to `${API_BASE}/bullying/check`
+// (same pattern as checkScamAPI above — send {input:text}, read verdict/signals from
+// the response), then remove analyzeBullying()/bullyingRules as dead code.
+$("bullyingBtn").addEventListener("click",()=>{
+  const text=boundedText($("bullyingInput").value);
+  if(!text){showToast("Enter some text first.");return}
+  const r=analyzeBullying(text), box=$("bullyingResult");
+  const level=r.severity==="High"?"danger":r.severity==="Moderate"?"warn":"safe";
+  box.hidden=false;box.className="result "+level;
+  box.innerHTML=`<div class="result-title">${r.severity} concern</div>
+  <p>${r.found.length?"Potential categories detected:":"No common bullying phrases detected by this simple rule set."}</p>
+  <div class="chips">${r.found.map(x=>`<span class="chip">${escapeHTML(x)}</span>`).join("")}</div>
+  ${r.found.length?`<div class="highlight"><b>Try a safer response:</b><br>${escapeHTML(safeRephrase(text))}</div>`:""}`;
+  addHistory("bullying","Bullying text check",`${r.severity} concern`,level,text);
+});
+$("bullyingClear").addEventListener("click",()=>{$("bullyingInput").value="";$("bullyingResult").hidden=true});
+
+/* ---------------------------
+   Phase 2: Dynamic screen time
+---------------------------- */
+function dateKey(d){return d.toISOString().slice(0,10)}
+function localDateInput(){
+  const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10)
+}
+function getLast7(){
+  const out=[];const end=new Date($("screenDate").value+"T12:00:00");
+  for(let i=6;i>=0;i--){const d=new Date(end);d.setDate(end.getDate()-i);out.push(dateKey(d))}
+  return out;
+}
+function drawChart(){
+  const canvas=$("screenChart"), ctx=canvas.getContext("2d"), rect=canvas.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;ctx.scale(dpr,dpr);
+  const w=rect.width,h=rect.height,p={l:38,r:14,t:18,b:32},cw=w-p.l-p.r,ch=h-p.t-p.b;
+  ctx.clearRect(0,0,w,h);
+  const data=screenTimeByDate();
+  const keys=getLast7(), vals=keys.map(k=>Number(data[k]||0)), max=Math.max(8,...vals,Number($("screenGoal").value||6));
+  ctx.strokeStyle="#e5e7eb";ctx.fillStyle="#667085";ctx.font="11px Inter, sans-serif";ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=p.t+ch-(ch*i/4);ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();ctx.fillText((max*i/4).toFixed(0)+"h",3,y+4)}
+  const step=cw/6, bw=Math.min(42,step*.55);
+  vals.forEach((v,i)=>{const x=p.l+i*step-bw/2, bh=(v/max)*ch,y=p.t+ch-bh;ctx.fillStyle=v>Number($("screenGoal").value||6)?"#dc2626":"#4f46e5";ctx.fillRect(x,y,bw,bh);ctx.fillStyle="#667085";ctx.fillText(keys[i].slice(5),x-5,h-10)});
+  const avg=vals.reduce((a,b)=>a+b,0)/7;$("chartAverage").textContent="Average: "+avg.toFixed(1)+"h";
+  const today=Number(data[$("screenDate").value]||0),goal=Number($("screenGoal").value||6);
+  $("wellbeingBox").className="result "+(today>goal?"warn":"safe");
+  $("wellbeingBox").innerHTML=today?`<b>${today>goal?"Above your goal":"Within your goal"}</b><br>${today.toFixed(1)}h used vs ${goal.toFixed(1)}h target.`:"Add today's screen time to get a recommendation.";
+}
+$("screenDate").value=localDateInput();
+$("screenGoal").value=loadJSON(STORAGE.goal,6);
+$("screenDate").addEventListener("change",drawChart);
+$("screenGoal").addEventListener("input",()=>{saveJSON(STORAGE.goal,Number($("screenGoal").value||6));drawChart()});
+$("screenSave").addEventListener("click",async()=>{
+  const hours=Number($("screenHours").value), date=$("screenDate").value;
+  if(!date||!Number.isFinite(hours)||hours<0||hours>24){showToast("Enter a valid date and 0–24 hours.");return}
+  const saved=await addHistory("screen","Screen time logged",`${hours.toFixed(1)}h on ${date}`,"info",`${hours.toFixed(1)} hours`,{date,hours});
+  if(saved){
+    $("screenHours").value="";
+    showToast("Screen time saved to your account.");
+  }
+});
+window.addEventListener("resize",drawChart);
+
+/* ---------------------------
+   Phase 5: security, usability, accessibility
+---------------------------- */
+$("clearHistory").addEventListener("click",async()=>{
+  if(!currentUid||!confirm("Clear all activity saved to your account?"))return;
+  try{
+    const snapshot=await getDocs(collection(db,"users",currentUid,"items"));
+    await Promise.all(snapshot.docs.map(itemDoc=>deleteDoc(itemDoc.ref)));
+    await loadDashboard(currentUid);
+    showToast("History cleared.");
+  }catch(error){
+    console.error("Could not clear activity:",error);
+    showToast("Could not clear your history. Check your connection and Firestore rules.");
+  }
+});
+document.addEventListener("click",event=>{
+  if(!(event.target instanceof Element))return;
+  const button=event.target.closest("[data-delete-item]");
+  if(!button||!currentUid)return;
+  const itemId=button.getAttribute("data-delete-item");
+  if(!itemId)return;
+  button.setAttribute("disabled","true");
+  deleteItem(currentUid,itemId).catch(error=>{
+    console.error("Could not delete activity:",error);
+    showToast("Could not delete activity. Check your connection and Firestore rules.");
+    button.removeAttribute("disabled");
+  });
+});
+
+renderHistory();updateDashboard();drawChart();
+</script>
+</body>
+</html>

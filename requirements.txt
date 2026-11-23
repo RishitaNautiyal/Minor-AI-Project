@@ -1,0 +1,7 @@
+Flask
+Flask-Cors
+huggingface-hub
+python-dotenv
+pandas
+tldextract
+scikit-learn

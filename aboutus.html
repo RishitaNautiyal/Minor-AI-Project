@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Learn about OffGrid and its digital safety mission.">
+<title>About Us | OffGrid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="main.css">
+</head>
+<body>
+<main class="main standalone-main">
+  <div class="top-controls about-top-controls">
+    <button class="theme-toggle" id="aboutThemeToggle" type="button" aria-label="Switch to dark mode">🌙 Dark mode</button>
+    <a class="btn btn-secondary about-back" href="main.html">← Back to dashboard</a>
+  </div>
+  <section class="about-page">
+    <div class="header"><div><div class="brand standalone-brand">OffGrid</div><h1>About OffGrid</h1><p class="about-intro">Helping students and families stay safer, smarter, and healthier online.</p></div></div>
+    <div class="card">
+      <p>The internet is a powerful part of everyday life. We use it to learn, connect, create, and have fun, but being online also comes with risks.</p>
+      <p style="margin-top:12px"><strong>OffGrid</strong> is a digital safety project designed to help students and families understand online risks, identify potential threats, and develop healthier technology habits.</p>
+      <p style="margin-top:12px">Our goal is simple: <strong>make digital safety easier to understand and easier to practice.</strong></p>
+
+      <section class="about-section">
+        <h2>What OffGrid Provides</h2>
+        <p>OffGrid brings practical digital-safety tools and guidance together in one place, helping users identify online risks and make safer choices.</p>
+        <div class="about-tools">
+          <article class="about-tool"><h3>🔎 Scam Checker</h3><p>Check suspicious URLs and messages for common scam and security risk indicators before interacting with them.</p></article>
+          <article class="about-tool"><h3>🎭 Deepfake Checker</h3><p>Analyze uploaded images through a demonstration-based deepfake checker and learn why manipulated media can be difficult to identify.</p></article>
+          <article class="about-tool"><h3>🚩 Cyberbullying Flag</h3><p>Identify potentially harmful, abusive, or bullying language and recognize when an online conversation may need attention.</p></article>
+          <article class="about-tool"><h3>⏱️ Screen Time</h3><p>Build awareness of digital habits and encourage a healthier balance between screen time, study, sleep, and everyday life.</p></article>
+          <article class="about-tool"><h3>📋 Activity History</h3><p>Review previous checks and activities in one place to better understand your digital-safety habits over time.</p></article>
+          <article class="about-tool"><h3>🛡️ Safety Guidance</h3><p>Get simple, practical guidance on protecting personal information, handling suspicious content, responding to online bullying, and using technology responsibly.</p></article>
+        </div>
+      </section>
+
+      <section class="about-section">
+        <h2>Why We Built OffGrid</h2>
+        <p>Students and families spend a significant amount of time online. Along with the benefits of technology, they may encounter scams, cyberbullying, manipulated content, privacy risks, and unhealthy screen habits.</p>
+        <p style="margin-top:12px"><strong>OffGrid</strong> was created to bring these challenges together in one simple and approachable platform.</p>
+        <p style="margin-top:12px">Instead of making digital safety complicated, we focus on <strong>awareness, practical tools, clear guidance, and responsible technology use.</strong></p>
+      </section>
+
+      <section class="about-section">
+        <h2>Our Approach</h2>
+        <h3>Awareness → Check → Think → Act</h3>
+        <div class="about-steps">
+          <div class="about-step"><b>Stay aware</b><span>Notice what you encounter online.</span></div>
+          <div class="about-step"><b>Check</b><span>Review suspicious links, messages, and content.</span></div>
+          <div class="about-step"><b>Think</b><span>Pause before clicking, sharing, or responding.</span></div>
+          <div class="about-step"><b>Act responsibly</b><span>Take care when something feels unsafe.</span></div>
+        </div>
+      </section>
+
+      <section class="about-section">
+        <h2>Our Vision</h2>
+        <p>We believe technology should improve our lives, not take control of them.</p>
+        <p style="margin-top:12px">OffGrid aims to help students and families become more confident, aware, and responsible digital citizens while building a healthier relationship with technology.</p>
+        <p class="about-closing">Stay aware. Stay balanced. Stay safer online.</p>
+        <p style="margin-top:8px"><strong>OffGrid</strong><br><em>Making the digital world safer, one habit at a time.</em></p>
+      </section>
+    </div>
+  </section>
+  <footer>Never Share The OTP · Never enter passwords, OTPs, banking PINs or other secrets.</footer>
+</main>
+<script>
+"use strict";
+
+const themeToggle = document.getElementById("aboutThemeToggle");
+function setTheme(theme){
+  const isDark = theme === "dark";
+  document.documentElement.dataset.theme = isDark ? "dark" : "light";
+  try{localStorage.setItem("sbo_theme_v1", isDark ? "dark" : "light")}catch{}
+  themeToggle.textContent = isDark ? "☀️ Light mode" : "🌙 Dark mode";
+  themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+}
+
+let savedTheme = "light";
+try{savedTheme = localStorage.getItem("sbo_theme_v1") || "light"}catch{}
+setTheme(savedTheme === "dark" ? "dark" : "light");
+themeToggle.addEventListener("click",()=>setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"));
+</script>
+</body>
+</html>

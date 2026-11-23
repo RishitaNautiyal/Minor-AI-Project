@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'; frame-src https://offgrid-3b579.firebaseapp.com https://accounts.google.com https://www.google.com https://www.gstatic.com; img-src 'self' blob: data: https://*.googleusercontent.com; font-src https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google.com https://apis.google.com; connect-src 'self' http://127.0.0.1:5002 http://localhost:5002 https://www.gstatic.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com;">
+    <title>OffGrid | Login</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0D1620;
+            --surface: #141F2A;
+            --surface-raised: #1B2933;
+            --border: #263640;
+            --border-strong: #324450;
+            --text: #EAF0EE;
+            --text-soft: #8FA3AC;
+            --text-mute: #5D717A;
+            --teal: #35C9B0;
+            --teal-dim: rgba(53, 201, 176, .14);
+            --teal-ink: #06261F;
+            --amber: #F0A857;
+
+            --font-head: "Space Grotesk", -apple-system, sans-serif;
+            --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            display: flex;
+        }
+
+        /* --------------------------------------------------
+           LEFT BRAND PANEL
+        -------------------------------------------------- */
+
+        .brand-panel {
+            flex: 1.15;
+            position: relative;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 56px 64px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .brand-panel::before {
+            content: "";
+            position: absolute;
+            top: -120px;
+            right: -120px;
+            width: 380px;
+            height: 380px;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle,
+                var(--teal-dim),
+                transparent 70%
+            );
+            pointer-events: none;
+        }
+
+        .brand-panel::after {
+            content: "";
+            position: absolute;
+            bottom: -140px;
+            left: -100px;
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle,
+                rgba(240,168,87,.12),
+                transparent 70%
+            );
+            pointer-events: none;
+        }
+
+        .brand-panel .brand {
+            justify-content: flex-start;
+            margin-bottom: 34px;
+            position: relative;
+        }
+
+        .brand-panel .brand-mark {
+            width: 40px;
+            height: 40px;
+        }
+
+        .brand-panel .logo {
+            font-size: 100px;
+        }
+
+        .brand-headline {
+            font-family: var(--font-head);
+            font-size: 34px;
+            font-weight: 600;
+            line-height: 1.25;
+            margin-bottom: 16px;
+            max-width: none;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .brand-headline .accent {
+            color: var(--teal);
+        }
+
+        .brand-desc {
+            color: var(--text-soft);
+            font-size: 14.5px;
+            line-height: 1.65;
+            max-width: 34em;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        .feature-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .feature-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-head);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .feature-badge.teal {
+            background: var(--teal-dim);
+            color: var(--teal);
+        }
+
+        .feature-badge.amber {
+            background: rgba(240,168,87,.14);
+            color: var(--amber);
+        }
+
+        .feature-row h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .feature-row p {
+            font-size: 12.5px;
+            color: var(--text-mute);
+            line-height: 1.5;
+        }
+
+        /* --------------------------------------------------
+           RIGHT FORM PANEL
+        -------------------------------------------------- */
+
+        .form-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .container {
+            width: 380px;
+            max-width: 100%;
+            padding: 12px 0;
+            animation: rise 0.5s ease both;
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .brand-mark {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-family: var(--font-head);
+            font-size: 100px;
+            font-weight: 600;
+        }
+
+        .logo span {
+            color: var(--teal);
+        }
+
+        .subtitle {
+            color: var(--text-soft);
+            margin-bottom: 30px;
+            font-size: 13.5px;
+        }
+
+        h2 {
+            font-family: var(--font-head);
+            margin-bottom: 22px;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-soft);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        .password-row {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border-strong);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 14px;
+            outline: none;
+            transition:
+                border-color .15s ease,
+                box-shadow .15s ease;
+        }
+
+        .password-row input {
+            padding-right: 44px;
+        }
+
+        input::placeholder {
+            color: var(--text-mute);
+        }
+
+        input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px var(--teal-dim);
+        }
+
+        input.input-invalid {
+            border-color: #F07B7B;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            color: var(--text-mute);
+        }
+
+        .toggle-password:hover {
+            color: var(--text-soft);
+        }
+
+        .toggle-password svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .input-error {
+            color: #F07B7B;
+            font-size: 12px;
+            margin-top: 6px;
+            min-height: 16px;
+        }
+
+        .field-meta {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: -10px;
+            margin-bottom: 18px;
+        }
+
+        .field-meta a {
+            font-size: 12.5px;
+        }
+
+        /* --------------------------------------------------
+           AUTH MESSAGE
+        -------------------------------------------------- */
+
+        .auth-message {
+            display: none;
+            padding: 10px 12px;
+            border-radius: 7px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            line-height: 1.4;
+
+            background: rgba(240, 123, 123, 0.10);
+            border: 1px solid rgba(240, 123, 123, 0.25);
+            color: #F3A0A0;
+        }
+
+        .auth-message.success {
+            background: rgba(53, 201, 176, 0.10);
+            border-color: rgba(53, 201, 176, 0.25);
+            color: var(--teal);
+        }
+
+        /* --------------------------------------------------
+           LOGIN BUTTON
+        -------------------------------------------------- */
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: var(--teal);
+            color: var(--teal-ink);
+            font-family: var(--font-body);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+
+            transition:
+                opacity .12s ease,
+                transform .12s ease;
+        }
+
+        .login-btn:hover {
+            opacity: .9;
+        }
+
+        .login-btn:active {
+            transform: scale(0.99);
+        }
+
+        .login-btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* --------------------------------------------------
+           DIVIDER
+        -------------------------------------------------- */
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 22px 0;
+            color: var(--text-mute);
+            font-size: 12.5px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* --------------------------------------------------
+           GOOGLE BUTTON
+        -------------------------------------------------- */
+
+        .google-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--surface-raised);
+            border: 1px solid var(--border-strong);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 500;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+
+            transition:
+                background .12s ease,
+                border-color .12s ease;
+        }
+
+        .google-btn:hover {
+            background: #212e39;
+            border-color: var(--teal);
+        }
+
+        .google-btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .google-btn svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .bottom-text {
+            text-align: center;
+            margin-top: 25px;
+            color: var(--text-soft);
+            font-size: 13.5px;
+        }
+
+        a {
+            color: var(--teal);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .security {
+            text-align: center;
+            margin-top: 25px;
+            color: var(--text-mute);
+            font-size: 11.5px;
+        }
+
+        /* --------------------------------------------------
+           RESPONSIVE
+        -------------------------------------------------- */
+
+        @media (max-width: 900px) {
+
+            body {
+                flex-direction: column;
+            }
+
+            .brand-panel {
+                flex: none;
+                padding: 32px 28px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .brand-panel .brand {
+                margin-bottom: 14px;
+            }
+
+            .brand-headline {
+                font-size: 22px;
+                max-width: none;
+                margin-bottom: 8px;
+            }
+
+            .brand-desc {
+                font-size: 13px;
+                margin-bottom: 0;
+            }
+
+            .feature-list {
+                display: none;
+            }
+
+            .brand-panel::before,
+            .brand-panel::after {
+                display: none;
+            }
+
+            .form-panel {
+                padding: 28px 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            body {
+                padding: 0;
+            }
+
+            .container {
+                width: 100%;
+                padding: 28px 22px;
+            }
+
+            .logo {
+                font-size: 23px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-height: 700px) and (min-width: 901px) {
+
+            .form-panel {
+                align-items: flex-start;
+                padding-top: 40px;
+            }
+        }
+        </style>
+</head>
+
+<body>
+
+<!-- =========================================================
+     BRAND PANEL
+========================================================= -->
+
+<div class="brand-panel">
+
+    <div class="brand">
+
+        <svg class="brand-mark" viewBox="0 0 32 32" fill="none">
+
+            <path
+                d="M16 3 27 7v8c0 8-5 12.5-11 14
+                   -6-1.5-11-6-11-14V7l11-4Z"
+                stroke="#35C9B0"
+                stroke-width="1.6"
+                stroke-linejoin="round"
+            />
+
+            <path
+                d="M11 16.5l3.3 3.3L21.5 12"
+                stroke="#F0A857"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            />
+
+        </svg>
+
+        <div class="logo">
+            Off<span>Grid</span>
+        </div>
+
+    </div>
+
+
+    <div class="brand-headline">
+        Stay safe.
+        <span class="accent">Stay balanced.
+    </div>
+
+
+    <p class="brand-desc">
+        OffGrid protects students and families from online scams,
+        cyberbullying, deepfakes, and screen addiction &mdash;
+        all from one dashboard, built for the way young people
+        actually use the internet.
+    </p>
+
+
+    <div class="feature-list">
+
+        <div class="feature-row">
+
+            <div class="feature-badge teal">
+                S
+            </div>
+
+            <div>
+                <h4>Scam Checker</h4>
+
+                <p>
+                    Paste a link or message,
+                    get a real-time risk score.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="feature-row">
+
+            <div class="feature-badge amber">
+                D
+            </div>
+
+            <div>
+                <h4>Deepfake Image Checker</h4>
+
+                <p>
+                    Upload a photo,
+                    check it for AI manipulation.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="feature-row">
+
+            <div class="feature-badge teal">
+                B
+            </div>
+
+            <div>
+                <h4>Bullying Flag</h4>
+
+                <p>
+                    Detect harassment before
+                    it's sent or reported.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="feature-row">
+
+            <div class="feature-badge amber">
+                T
+            </div>
+
+            <div>
+                <h4>Screen Time</h4>
+
+                <p>
+                    Track usage and build
+                    healthier habits.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     LOGIN PANEL
+========================================================= -->
+
+<div class="form-panel">
+
+    <div class="container">
+
+        <h2>
+            Welcome back
+        </h2>
+
+
+        <p
+            class="subtitle"
+            style="text-align:left; margin-bottom:26px;"
+        >
+            Log in to your OffGrid account to continue.
+        </p>
+
+
+        <!-- Authentication message -->
+
+        <div
+            class="auth-message"
+            id="authMessage"
+            role="alert"
+        ></div>
+
+
+        <!-- LOGIN FORM -->
+
+        <form
+            id="loginForm"
+            novalidate
+        >
+
+            <!-- EMAIL -->
+
+            <div class="field">
+
+                <label for="email">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your email"
+                    required
+                    autocomplete="email"
+                >
+
+                <div
+                    class="input-error"
+                    id="emailError"
+                ></div>
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div class="field">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <div class="password-row">
+
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter your password"
+                        required
+                        autocomplete="current-password"
+                    >
+
+                    <button
+                        type="button"
+                        class="toggle-password"
+                        id="togglePassword"
+                        aria-label="Show password"
+                    >
+
+                        <svg
+                            id="eyeIcon"
+                            viewBox="0 0 24 24"
+                        >
+
+                            <path
+                                d="M2 12s3.5-7 10-7
+                                   10 7 10 7-3.5 7-10 7
+                                   -10-7-10-7Z"
+                            />
+
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="3"
+                            />
+
+                        </svg>
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="input-error"
+                    id="passwordError"
+                ></div>
+
+            </div>
+
+
+            <!-- FORGOT PASSWORD -->
+
+            <div class="field-meta">
+
+                <a
+                    href="#"
+                    id="forgotPassword"
+                >
+                    Forgot password?
+                </a>
+
+            </div>
+
+
+            <!-- LOGIN BUTTON -->
+
+            <button
+                type="submit"
+                class="login-btn"
+                id="loginButton"
+            >
+
+                <span id="loginText">
+                    Login
+                </span>
+
+                <span
+                    id="loginLoading"
+                    style="display:none;"
+                >
+                    Logging in...
+                </span>
+
+            </button>
+
+        </form>
+
+
+        <!-- DIVIDER -->
+
+        <div class="divider">
+            OR
+        </div>
+
+
+        <!-- GOOGLE LOGIN -->
+
+        <button
+            type="button"
+            class="google-btn"
+            id="googleLogin"
+        >
+
+            <svg viewBox="0 0 48 48">
+
+                <path
+                    fill="#EA4335"
+                    d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6
+                       l6.4-6.4C35.6 2.9 30.2 1 24 1
+                       14.8 1 6.9 6.4 3.1 14.1l7.5 5.8
+                       C12.5 13.8 17.7 9.5 24 9.5z"
+                />
+
+                <path
+                    fill="#4285F4"
+                    d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9
+                       h12.7c-.6 3-2.3 5.5-4.8 7.2l7.4 5.7
+                       c4.3-4 6.8-9.9 6.8-17.4z"
+                />
+
+                <path
+                    fill="#FBBC05"
+                    d="M10.6 19.9a14.5 14.5 0 0 1 0-9.2
+                       l-7.5-5.8a24 24 0 0 0 0 20.8l7.5-5.8z"
+                />
+
+                <path
+                    fill="#34A853"
+                    d="M24 47c6.2 0 11.6-2 15.5-5.5
+                       l-7.4-5.7c-2.1 1.5-4.8 2.4-8.1 2.4
+                       -6.3 0-11.5-4.3-13.4-10.1l-7.5 5.8
+                       C6.9 41.6 14.8 47 24 47z"
+                />
+
+            </svg>
+
+            Continue with Google
+
+        </button>
+
+
+        <!-- SIGNUP -->
+
+        <div class="bottom-text">
+
+            Don't have an account?
+
+            <a href="signup.html">
+                Create account
+            </a>
+
+        </div>
+
+
+        <div class="security">
+            Your account helps protect your OffGrid activity.
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     FIREBASE LOGIN
+========================================================= -->
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+    getAuth,
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    GoogleAuthProvider,
+    sendPasswordResetEmail,
+    onAuthStateChanged,
+    setPersistence,
+    browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// ---------- Firebase ----------
+const firebaseConfig = {
+    apiKey: "AIzaSyD2Ctr1g32K84SAcuYnJ_EgJvrxHBD3UsI",
+    authDomain: "offgrid-3b579.firebaseapp.com",
+    projectId: "offgrid-3b579",
+    storageBucket: "offgrid-3b579.firebasestorage.app",
+    messagingSenderId: "520512562949",
+    appId: "1:520512562949:web:5e9d8f485019a4723b796c"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: "select_account" });
+
+// ---------- Elements ----------
+const $ = (id) => document.getElementById(id);
+const loginForm = $("loginForm"), emailInput = $("email"), passwordInput = $("password");
+const emailError = $("emailError"), passwordError = $("passwordError"), authMessage = $("authMessage");
+const loginButton = $("loginButton"), loginText = $("loginText"), loginLoading = $("loginLoading");
+const googleLogin = $("googleLogin"), forgotPassword = $("forgotPassword"), togglePassword = $("togglePassword");
+
+// ---------- Helpers ----------
+const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+
+function clearErrors() {
+    emailError.textContent = "";
+    passwordError.textContent = "";
+    emailInput.classList.remove("input-invalid");
+    passwordInput.classList.remove("input-invalid");
+    authMessage.style.display = "none";
+    authMessage.textContent = "";
+    authMessage.classList.remove("success");
+}
+function showMessage(msg) {
+    authMessage.textContent = msg;
+    authMessage.classList.remove("success");
+    authMessage.style.display = "block";
+}
+function showSuccess(msg) {
+    authMessage.textContent = msg;
+    authMessage.classList.add("success");
+    authMessage.style.display = "block";
+}
+function setLoading(on) {
+    loginButton.disabled = on;
+    googleLogin.disabled = on;
+    loginText.style.display = on ? "none" : "inline";
+    loginLoading.style.display = on ? "inline" : "none";
+}
+function errorText(error) {
+    switch (error.code) {
+        case "auth/invalid-email": return "Please enter a valid email address.";
+        case "auth/user-not-found":
+        case "auth/wrong-password":
+        case "auth/invalid-credential": return "Incorrect email or password.";
+        case "auth/user-disabled": return "This account has been disabled.";
+        case "auth/too-many-requests": return "Too many attempts. Please try again later.";
+        case "auth/popup-closed-by-user": return "Google login was cancelled.";
+        case "auth/cancelled-popup-request": return "Google login was cancelled.";
+        case "auth/popup-blocked": return "Your browser blocked the Google login popup.";
+        case "auth/network-request-failed": return "Network error. Please check your internet connection.";
+        case "auth/unauthorized-domain": return "Open the site at http://localhost:5500 (not 127.0.0.1) or add this address in Firebase > Authentication > Settings > Authorized domains.";
+        case "auth/operation-not-allowed": return "Enable Google and Email/Password in Firebase Console > Authentication > Sign-in method.";
+        default: return "Login failed. Please try again.";
+    }
+}
+
+// Save name + email in SQLite (users.py, port 5002)
+async function saveUserToDatabase(user) {
+    try {
+        await fetch("http://127.0.0.1:5002/api/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                firebase_uid: user.uid,
+                name: user.displayName || "OffGrid User",
+                email: user.email || ""
+            })
+        });
+    } catch (e) {
+        console.warn("Could not save user to database", e);
+    }
+}
+function saveProfile(user) {
+    try {
+        localStorage.setItem("offgrid_profile", JSON.stringify({
+            uid: user.uid,
+            name: user.displayName || "OffGrid User",
+            email: user.email || ""
+        }));
+    } catch (e) { /* ignore */ }
+}
+
+// ---------- Show / hide password ----------
+togglePassword.addEventListener("click", function () {
+    const hidden = passwordInput.type === "password";
+    passwordInput.type = hidden ? "text" : "password";
+    this.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
+});
+
+// ---------- Email + password login ----------
+loginForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    if (loginButton.disabled) return;
+    clearErrors();
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    let valid = true;
+
+    if (!email) {
+        emailError.textContent = "Email address is required.";
+        emailInput.classList.add("input-invalid");
+        valid = false;
+    } else if (!isValidEmail(email)) {
+        emailError.textContent = "Please enter a valid email address.";
+        emailInput.classList.add("input-invalid");
+        valid = false;
+    }
+    if (!password) {
+        passwordError.textContent = "Password is required.";
+        passwordInput.classList.add("input-invalid");
+        valid = false;
+    } else if (password.length < 6) {
+        passwordError.textContent = "Password must contain at least 6 characters.";
+        passwordInput.classList.add("input-invalid");
+        valid = false;
+    }
+    if (!valid) return;
+
+    setLoading(true);
+    try {
+        await setPersistence(auth, browserLocalPersistence);
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        saveProfile(result.user);
+        await saveUserToDatabase(result.user);
+        window.location.href = "main.html";
+    } catch (error) {
+        console.error("Login error:", error);
+        showMessage(errorText(error));
+        setLoading(false);
+    }
+});
+
+// ---------- Google login ----------
+googleLogin.addEventListener("click", async function () {
+    if (googleLogin.disabled) return;
+    clearErrors();
+    setLoading(true);
+
+    try {
+        await setPersistence(auth, browserLocalPersistence);
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        saveProfile(user);
+        await saveUserToDatabase(user);
+        window.location.href = "main.html";
+    } catch (error) {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        const email = error.customData ? error.customData.email : undefined;
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        console.error(errorCode, errorMessage, email, credential);
+
+        showMessage(errorText(error));
+        setLoading(false);
+    }
+});
+
+// ---------- Forgot password ----------
+forgotPassword.addEventListener("click", async function (event) {
+    event.preventDefault();
+    clearErrors();
+    const email = emailInput.value.trim();
+
+    if (!email || !isValidEmail(email)) {
+        emailError.textContent = "Enter your email first, then click Forgot password.";
+        emailInput.classList.add("input-invalid");
+        return;
+    }
+    try {
+        await sendPasswordResetEmail(auth, email);
+        showSuccess("Password reset email sent. Please check your inbox.");
+    } catch (error) {
+        console.error("Password reset error:", error);
+        showMessage(errorText(error));
+    }
+});
+
+// ---------- Already signed in? go to the app ----------
+onAuthStateChanged(auth, function (user) {
+    if (user) window.location.href = "main.html";
+});
+</script>
+
+</body>
+</html>
